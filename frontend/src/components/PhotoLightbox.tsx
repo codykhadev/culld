@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { thumbnailUrl } from "../api/client";
 import type { PhotoResult } from "../types";
+import { PhotoStatusBadges } from "./PhotoStatusBadges";
 
 interface Props {
   photos: PhotoResult[];
@@ -72,8 +73,16 @@ export function PhotoLightbox({ photos, selectedIndex, onClose, onNavigate }: Pr
         className="max-h-[85vh] max-w-[90vw] rounded-lg object-contain shadow-2xl"
       />
 
-      <div className="mt-3 text-sm text-white/80" onClick={(event) => event.stopPropagation()}>
-        {photo.filename} · {selectedIndex + 1} / {photos.length}
+      <div
+        className="mt-3 flex flex-col items-center gap-2 text-sm text-white/80"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="flex items-center gap-1">
+          <PhotoStatusBadges photo={photo} />
+        </div>
+        <div>
+          {photo.filename} · {selectedIndex + 1} / {photos.length}
+        </div>
       </div>
     </div>
   );

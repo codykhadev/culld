@@ -1,6 +1,6 @@
-import type { ReactNode } from "react";
 import { thumbnailUrl } from "../api/client";
 import type { PhotoResult } from "../types";
+import { PhotoStatusBadges } from "./PhotoStatusBadges";
 
 interface Props {
   photo: PhotoResult;
@@ -9,26 +9,8 @@ interface Props {
   onOpen: (photoId: string) => void;
 }
 
-function Badge({ tone, children }: { tone: "good" | "bad" | "neutral"; children: ReactNode }) {
-  const toneClasses = {
-    good: "bg-green-100 text-green-700",
-    bad: "bg-red-100 text-red-700",
-    neutral: "bg-neutral-100 text-neutral-600",
-  }[tone];
-  return <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${toneClasses}`}>{children}</span>;
-}
-
 export function PhotoCard({ photo, kept, onToggleKeep, onOpen }: Props) {
   const failed = photo.status === "failed";
-
-  const eyesBadge =
-    photo.eyes_state === "open" ? (
-      <Badge tone="good">eyes open</Badge>
-    ) : photo.eyes_state === "closed" ? (
-      <Badge tone="bad">eyes closed</Badge>
-    ) : (
-      <Badge tone="neutral">no face</Badge>
-    );
 
   return (
     <div
@@ -56,14 +38,7 @@ export function PhotoCard({ photo, kept, onToggleKeep, onOpen }: Props) {
       )}
 
       <div className="flex flex-wrap items-center gap-1 p-2">
-        {failed ? (
-          <Badge tone="bad">unreadable file</Badge>
-        ) : (
-          <>
-            {photo.is_blurry ? <Badge tone="bad">blurry</Badge> : <Badge tone="good">sharp</Badge>}
-            {eyesBadge}
-          </>
-        )}
+        <PhotoStatusBadges photo={photo} />
       </div>
 
       <button
@@ -75,7 +50,7 @@ export function PhotoCard({ photo, kept, onToggleKeep, onOpen }: Props) {
             : "border-red-100 bg-red-50 text-red-600 hover:bg-red-100"
         }`}
       >
-        {kept ? "Keep" : "Rejected — click to restore"}
+        {kept ? "Remove" : "Removed — click to restore"}
       </button>
     </div>
   );
