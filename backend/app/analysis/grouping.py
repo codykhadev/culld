@@ -19,11 +19,9 @@ class GroupingResult:
 
 
 class _UnionFind:
-    """Standard union-find (disjoint set) with path compression: each
-    photo starts as its own group, and every near-duplicate pair we find
-    merges their groups together, so a burst of 4 near-identical shots
-    ends up as one group even if we only directly compared some pairs.
-    """
+    """Merges photos transitively: if A~B and B~C are both within the hash
+    distance threshold, A/B/C end up in one group even though A and C
+    were never directly compared."""
 
     def __init__(self, ids: list[str]):
         self.parent = {photo_id: photo_id for photo_id in ids}
@@ -49,11 +47,9 @@ def group_photos(
     photos: list[PhotoForGrouping],
     distance_threshold: int = HASH_DISTANCE_THRESHOLD,
 ) -> dict[str, GroupingResult]:
-    """Cluster near-duplicate photos by perceptual hash distance, and
-    within each cluster recommend a keeper: the sharpest photo with eyes
-    open, falling back to the sharpest photo overall if none qualify.
-    Photos with no near-duplicates get group_id=None (not part of a burst).
-    """
+    """Clusters by perceptual hash distance; within each cluster, the
+    keeper is the sharpest photo with eyes open (or just sharpest, if
+    none qualify). Singletons get group_id=None."""
     union_find = _UnionFind([photo.id for photo in photos])
 
     for i in range(len(photos)):

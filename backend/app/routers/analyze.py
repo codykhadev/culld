@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, UploadFile
 
 from app.analysis.blur import compute_blur_score, is_blurry
+from app.config import BLUR_THRESHOLD
 from app.models import BlurResult
 from app.storage import decode_image
 
@@ -16,4 +17,4 @@ async def analyze_blur(file: UploadFile) -> BlurResult:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
     score = compute_blur_score(image)
-    return BlurResult(blur_score=score, is_blurry=is_blurry(score))
+    return BlurResult(blur_score=score, is_blurry=is_blurry(score, BLUR_THRESHOLD))

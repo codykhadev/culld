@@ -6,16 +6,14 @@ _mp_face_detection = mp.solutions.face_detection
 
 BoundingBox = tuple[int, int, int, int]  # (x1, y1, x2, y2) in pixel coordinates
 
-# MediaPipe's face detector works on the whole frame in one pass, and on
-# very high-resolution camera photos (20+ MP) it silently fails to find
-# faces that are perfectly visible at a normal viewing size. Downscaling
-# to a modest working resolution before detection fixes this reliably.
+# MediaPipe's detector silently misses faces that are perfectly visible
+# on very high-resolution camera photos (20+ MP) unless downscaled first.
 _DETECTION_MAX_DIMENSION = 1000
 
 
 def _detect_faces_in_region(region: np.ndarray, x_offset: int, y_offset: int, min_confidence: float) -> list[BoundingBox]:
-    """Run the detector on `region` and map results back into the
-    original full image's coordinate space via x_offset/y_offset."""
+    # x_offset/y_offset let this run on a crop (a tile) while still
+    # returning boxes in the original full image's coordinate space.
     region_height, region_width = region.shape[:2]
     scale = min(1.0, _DETECTION_MAX_DIMENSION / max(region_height, region_width))
     detection_image = (
@@ -69,14 +67,11 @@ def _deduplicate_boxes(boxes: list[BoundingBox], iou_threshold: float = 0.3) -> 
 
 
 def detect_all_face_boxes(image: np.ndarray, min_confidence: float = 0.4) -> list[BoundingBox]:
-    """Detect every face in the image, including small/distant faces in a
-    busy group photo.
-
-    Tries the whole frame first (fast, and sufficient for portraits/small
-    groups). If that finds nothing, falls back to a slower pass over a
-    2x2 grid of overlapping tiles — a face too small to register against
-    the full frame becomes proportionally larger within a tile, which is
-    what the detector actually needs to find it.
+    """Tries the whole frame first (fast; enough for portraits/small
+    groups). Only if that finds nothing does it fall back to a slower
+    2x2 tiled pass — a face too small to register against the full frame
+    becomes proportionally larger within a tile, which is what the
+    detector actually needs to find it in a busy group photo.
     """
     height, width = image.shape[:2]
 

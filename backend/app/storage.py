@@ -8,7 +8,6 @@ from app.config import THUMBNAIL_SIZE, UPLOAD_DIR
 
 
 def decode_image(raw_bytes: bytes) -> np.ndarray:
-    """Decode raw uploaded file bytes into an OpenCV BGR image array."""
     buffer = np.frombuffer(raw_bytes, dtype=np.uint8)
     image = cv2.imdecode(buffer, cv2.IMREAD_COLOR)
     if image is None:
@@ -25,7 +24,6 @@ def session_dirs(session_id: str) -> tuple[Path, Path]:
 
 
 def save_upload(session_id: str, photo_id: str, filename: str, raw_bytes: bytes) -> tuple[Path, Path]:
-    """Save the original file and a generated thumbnail, return their paths."""
     original_dir, thumb_dir = session_dirs(session_id)
     suffix = Path(filename).suffix or ".jpg"
 

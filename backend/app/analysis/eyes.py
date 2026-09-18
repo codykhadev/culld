@@ -8,8 +8,8 @@ from app.config import EAR_THRESHOLD
 
 _mp_face_mesh = mp.solutions.face_mesh
 
-# Landmark indices into MediaPipe's 468-point face mesh that trace each
-# eye's outline: [outer_corner, top_1, top_2, inner_corner, bottom_1, bottom_2]
+# Indices into MediaPipe's 468-point face mesh: [outer_corner, top_1,
+# top_2, inner_corner, bottom_1, bottom_2] tracing each eye's outline.
 _RIGHT_EYE = [33, 160, 158, 133, 153, 144]
 _LEFT_EYE = [362, 385, 387, 263, 373, 380]
 
@@ -19,11 +19,8 @@ def _dist(a, b) -> float:
 
 
 def _eye_aspect_ratio(points: list[tuple[float, float]]) -> float:
-    """EAR = (vertical eyelid gaps) / (horizontal eye width).
-
-    Open eyes have a large vertical gap relative to width -> high EAR.
-    Closed eyes collapse vertically -> EAR drops toward zero.
-    """
+    """Vertical eyelid gap over horizontal eye width — drops toward zero
+    as the eye closes, since the gap collapses but the width doesn't."""
     p1, p2, p3, p4, p5, p6 = points
     vertical = _dist(p2, p6) + _dist(p3, p5)
     horizontal = 2 * _dist(p1, p4)
@@ -59,15 +56,9 @@ def _detect_single_face_eyes_state(image: np.ndarray) -> str:
 
 
 def detect_eyes_state(image: np.ndarray, face_boxes: list[BoundingBox] | None = None) -> str:
-    """Returns "open", "closed", or "no_face_detected".
-
-    With no face_boxes, runs directly on the whole frame (single-subject
-    case). With one or more boxes (from
-    face_detection.detect_all_face_boxes, each already padded), EVERY
-    face is checked individually and the results are combined: "closed"
-    if ANY face has closed eyes — a group photo where one person blinked
-    is usually the shot to reject — "open" only if every detected face's
-    eyes are open.
+    """Returns "open", "closed", or "no_face_detected". With multiple
+    face_boxes, "closed" wins if any single face has closed eyes — a
+    group photo where one person blinked is usually the shot to reject.
     """
     if not face_boxes:
         return _detect_single_face_eyes_state(image)
