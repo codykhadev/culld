@@ -39,11 +39,11 @@ async def upload_photos(
         db.add(photo)
         db.flush()  # assigns photo.id without committing yet
 
-        original_path, thumb_path = save_upload(session_id, photo.id, photo.filename, raw_bytes)
-        photo.original_path = str(original_path)
-        photo.thumb_path = str(thumb_path)
-
         try:
+            original_path, thumb_path = save_upload(session_id, photo.id, photo.filename, raw_bytes)
+            photo.original_path = str(original_path)
+            photo.thumb_path = str(thumb_path)
+
             image = decode_image(raw_bytes)
             analysis = analyze_photo(image)
             photo.blur_score = analysis["blur_score"]
