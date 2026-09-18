@@ -4,7 +4,7 @@ from fastapi.staticfiles import StaticFiles
 
 from app.config import UPLOAD_DIR
 from app.db import init_db
-from app.routers import analyze, results, upload
+from app.routers import analyze, export, results, upload
 
 UPLOAD_DIR.mkdir(exist_ok=True)
 
@@ -23,6 +23,7 @@ app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 app.include_router(analyze.router)
 app.include_router(upload.router)
 app.include_router(results.router)
+app.include_router(export.router)
 
 
 @app.on_event("startup")
