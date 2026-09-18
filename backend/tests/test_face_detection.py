@@ -3,7 +3,7 @@ from pathlib import Path
 import cv2
 import pytest
 
-from app.analysis.face_detection import detect_primary_face_box, pad_box
+from app.analysis.face_detection import detect_all_face_boxes, detect_primary_face_box, pad_box
 
 FIXTURES = Path(__file__).parent / "fixtures"
 
@@ -43,3 +43,12 @@ def test_pad_box_grows_the_box_without_leaving_the_image():
     assert y2 >= box[3]
     assert 0 <= x1 and x2 <= width
     assert 0 <= y1 and y2 <= height
+
+
+def test_finds_multiple_small_faces_in_a_group_photo():
+    """Regression test: the whole-frame-only detector used to miss every
+    face in a busy group photo where each face is a small fraction of a
+    high-resolution frame. The tiled fallback should catch several."""
+    image = _load("group_photos", "small_group.jpg")
+    boxes = detect_all_face_boxes(image)
+    assert len(boxes) >= 2

@@ -30,23 +30,11 @@ def _eye_aspect_ratio(points: list[tuple[float, float]]) -> float:
     return vertical / horizontal
 
 
-def detect_eyes_state(image: np.ndarray, face_box: BoundingBox | None = None) -> str:
-    """Returns "open", "closed", or "no_face_detected".
-
-    If face_box (from face_detection.detect_primary_face_box, already
-    padded) is given, landmarks are computed on that cropped region —
-    FaceMesh's own built-in detector struggles on high-resolution photos
-    where the face is a small fraction of the frame, so cropping to a
-    known face location first makes detection far more reliable. Falls
-    back to the whole frame if the crop somehow doesn't yield landmarks.
-    """
-    candidates = []
-    if face_box is not None:
-        x1, y1, x2, y2 = face_box
-        crop = image[y1:y2, x1:x2]
-        if crop.size > 0:
-            candidates.append(crop)
-    candidates.append(image)
+def _detect_single_face_eyes_state(image: np.ndarray) -> str:
+    """Runs FaceMesh directly on `image` (assumed to already be roughly
+    face-sized, e.g. a crop) and classifies its eyes open/closed."""
+    height, width = image.shape[:2]
+    rgb_image = image[:, :, ::-1]  # OpenCV loads BGR; MediaPipe expects RGB
 
     with _mp_face_mesh.FaceMesh(
         static_image_mode=True,
@@ -54,21 +42,51 @@ def detect_eyes_state(image: np.ndarray, face_box: BoundingBox | None = None) ->
         refine_landmarks=False,
         min_detection_confidence=0.3,
     ) as face_mesh:
-        for candidate in candidates:
-            height, width = candidate.shape[:2]
-            rgb_image = candidate[:, :, ::-1]  # OpenCV loads BGR; MediaPipe expects RGB
-            result = face_mesh.process(rgb_image)
-            if not result.multi_face_landmarks:
-                continue
+        result = face_mesh.process(rgb_image)
 
-            landmarks = result.multi_face_landmarks[0].landmark
+    if not result.multi_face_landmarks:
+        return "no_face_detected"
 
-            def pixel_points(indices: list[int]) -> list[tuple[float, float]]:
-                return [(landmarks[i].x * width, landmarks[i].y * height) for i in indices]
+    landmarks = result.multi_face_landmarks[0].landmark
 
-            right_ear = _eye_aspect_ratio(pixel_points(_RIGHT_EYE))
-            left_ear = _eye_aspect_ratio(pixel_points(_LEFT_EYE))
-            avg_ear = (right_ear + left_ear) / 2
-            return "closed" if avg_ear < EAR_THRESHOLD else "open"
+    def pixel_points(indices: list[int]) -> list[tuple[float, float]]:
+        return [(landmarks[i].x * width, landmarks[i].y * height) for i in indices]
 
+    right_ear = _eye_aspect_ratio(pixel_points(_RIGHT_EYE))
+    left_ear = _eye_aspect_ratio(pixel_points(_LEFT_EYE))
+    avg_ear = (right_ear + left_ear) / 2
+    return "closed" if avg_ear < EAR_THRESHOLD else "open"
+
+
+def detect_eyes_state(image: np.ndarray, face_boxes: list[BoundingBox] | None = None) -> str:
+    """Returns "open", "closed", or "no_face_detected".
+
+    With no face_boxes, runs directly on the whole frame (single-subject
+    case). With one or more boxes (from
+    face_detection.detect_all_face_boxes, each already padded), EVERY
+    face is checked individually and the results are combined: "closed"
+    if ANY face has closed eyes — a group photo where one person blinked
+    is usually the shot to reject — "open" only if every detected face's
+    eyes are open.
+    """
+    if not face_boxes:
+        return _detect_single_face_eyes_state(image)
+
+    any_closed = False
+    any_open = False
+
+    for x1, y1, x2, y2 in face_boxes:
+        crop = image[y1:y2, x1:x2]
+        if crop.size == 0:
+            continue
+        state = _detect_single_face_eyes_state(crop)
+        if state == "closed":
+            any_closed = True
+        elif state == "open":
+            any_open = True
+
+    if any_closed:
+        return "closed"
+    if any_open:
+        return "open"
     return "no_face_detected"
