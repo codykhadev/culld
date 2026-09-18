@@ -45,3 +45,15 @@ export async function getResults(sessionId: string): Promise<SessionResultsRespo
 export function thumbnailUrl(path: string): string {
   return `${API_BASE_URL}${path}`;
 }
+
+export async function exportKeptPhotos(sessionId: string, photoIds: string[]): Promise<Blob> {
+  const res = await fetch(`${API_BASE_URL}/sessions/${sessionId}/export`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ photo_ids: photoIds }),
+  });
+  if (!res.ok) {
+    throw new Error(`Failed to export photos: ${res.status}`);
+  }
+  return res.blob();
+}

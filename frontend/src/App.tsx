@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { createSession, uploadPhotos } from "./api/client";
+import { createSession, exportKeptPhotos, uploadPhotos } from "./api/client";
 import { PhotoGrid } from "./components/PhotoGrid";
 import { PhotoLightbox } from "./components/PhotoLightbox";
 import { UploadDropzone } from "./components/UploadDropzone";
@@ -12,6 +12,7 @@ function App() {
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const handleFilesSelected = async (files: File[]) => {
     setIsUploading(true);
@@ -52,6 +53,28 @@ function App() {
     if (index !== -1) setOpenIndex(index);
   };
 
+  const handleDownloadKept = async () => {
+    if (!sessionId) return;
+    const keptPhotoIds = photos.filter((p) => keptIds.has(p.id)).map((p) => p.id);
+    if (keptPhotoIds.length === 0) return;
+
+    setIsDownloading(true);
+    setError(null);
+    try {
+      const blob = await exportKeptPhotos(sessionId, keptPhotoIds);
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "kept_photos.zip";
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong downloading your photos.");
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
   return (
     <main className="mx-auto min-h-screen max-w-6xl px-4 py-8">
       <header className="mb-6">
@@ -71,6 +94,14 @@ function App() {
             <span>
               {photos.length} photo{photos.length === 1 ? "" : "s"} · {keptCount} kept
             </span>
+            <button
+              type="button"
+              onClick={handleDownloadKept}
+              disabled={isDownloading || keptCount === 0}
+              className="rounded-md bg-blue-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-neutral-300"
+            >
+              {isDownloading ? "Preparing…" : `Download ${keptCount} kept photo${keptCount === 1 ? "" : "s"}`}
+            </button>
           </div>
           <PhotoGrid photos={photos} keptIds={keptIds} onToggleKeep={handleToggleKeep} onOpen={handleOpen} />
         </>
