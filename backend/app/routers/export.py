@@ -3,7 +3,7 @@ import zipfile
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.responses import StreamingResponse
+from fastapi.responses import Response
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
@@ -36,7 +36,7 @@ def _unique_filenames(filenames: list[str]) -> list[str]:
 
 
 @router.post("/{session_id}/export")
-def export_kept_photos(session_id: str, request: ExportRequest, db: Session = Depends(get_db)) -> StreamingResponse:
+def export_kept_photos(session_id: str, request: ExportRequest, db: Session = Depends(get_db)) -> Response:
     if not request.photo_ids:
         raise HTTPException(status_code=400, detail="No photo IDs provided")
 
@@ -51,14 +51,13 @@ def export_kept_photos(session_id: str, request: ExportRequest, db: Session = De
     names = _unique_filenames([photo.filename for photo in photos])
 
     buffer = io.BytesIO()
-    with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
+    with zipfile.ZipFile(buffer, "w", zipfile.ZIP_STORED) as zip_file:
         for photo, name in zip(photos, names):
             if Path(photo.original_path).exists():
                 zip_file.write(photo.original_path, arcname=name)
-    buffer.seek(0)
 
-    return StreamingResponse(
-        buffer,
+    return Response(
+        content=buffer.getvalue(),
         media_type="application/zip",
         headers={"Content-Disposition": "attachment; filename=kept_photos.zip"},
     )
