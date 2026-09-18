@@ -19,6 +19,8 @@ function Badge({ tone, children }: { tone: "good" | "bad" | "neutral"; children:
 }
 
 export function PhotoCard({ photo, kept, onToggleKeep, onOpen }: Props) {
+  const failed = photo.status === "failed";
+
   const eyesBadge =
     photo.eyes_state === "open" ? (
       <Badge tone="good">eyes open</Badge>
@@ -40,16 +42,28 @@ export function PhotoCard({ photo, kept, onToggleKeep, onOpen }: Props) {
         </span>
       )}
 
-      <img
-        src={thumbnailUrl(photo.thumbnail_url)}
-        alt={photo.filename}
-        onClick={() => onOpen(photo.id)}
-        className="aspect-square w-full cursor-pointer object-cover"
-      />
+      {failed ? (
+        <div className="flex aspect-square w-full items-center justify-center bg-neutral-100 p-2 text-center text-xs text-neutral-400">
+          Couldn't read this file
+        </div>
+      ) : (
+        <img
+          src={thumbnailUrl(photo.thumbnail_url)}
+          alt={photo.filename}
+          onClick={() => onOpen(photo.id)}
+          className="aspect-square w-full cursor-pointer object-cover"
+        />
+      )}
 
       <div className="flex flex-wrap items-center gap-1 p-2">
-        {photo.is_blurry ? <Badge tone="bad">blurry</Badge> : <Badge tone="good">sharp</Badge>}
-        {eyesBadge}
+        {failed ? (
+          <Badge tone="bad">unreadable file</Badge>
+        ) : (
+          <>
+            {photo.is_blurry ? <Badge tone="bad">blurry</Badge> : <Badge tone="good">sharp</Badge>}
+            {eyesBadge}
+          </>
+        )}
       </div>
 
       <button

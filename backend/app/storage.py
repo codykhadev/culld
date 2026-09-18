@@ -2,7 +2,7 @@ from pathlib import Path
 
 import cv2
 import numpy as np
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 
 from app.config import THUMBNAIL_SIZE, UPLOAD_DIR
 
@@ -31,9 +31,12 @@ def save_upload(session_id: str, photo_id: str, filename: str, raw_bytes: bytes)
     original_path.write_bytes(raw_bytes)
 
     thumb_path = thumb_dir / f"{photo_id}.jpg"
-    with Image.open(original_path) as img:
-        img = img.convert("RGB")
-        img.thumbnail(THUMBNAIL_SIZE)
-        img.save(thumb_path, "JPEG", quality=85)
+    try:
+        with Image.open(original_path) as img:
+            img = img.convert("RGB")
+            img.thumbnail(THUMBNAIL_SIZE)
+            img.save(thumb_path, "JPEG", quality=85)
+    except UnidentifiedImageError as exc:
+        raise ValueError("Could not decode image — unsupported or corrupt file") from exc
 
     return original_path, thumb_path

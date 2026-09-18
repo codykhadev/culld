@@ -51,6 +51,13 @@ def test_keeper_is_sharpest_photo_in_group_when_no_eyes_data():
     assert results["c"].is_recommended_keeper is False
 
 
+def test_single_photo_batch_has_no_group():
+    photos = [_photo("only", "burst_0.jpg", blur_score=100)]
+    results = group_photos(photos)
+    assert results["only"].group_id is None
+    assert results["only"].is_recommended_keeper is None
+
+
 def test_keeper_prefers_eyes_open_over_just_sharpness():
     photos = [
         _photo("blurry_open", "burst_0.jpg", blur_score=50, eyes_state="open"),
