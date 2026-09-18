@@ -4,12 +4,8 @@ from PIL import Image
 
 
 def compute_phash(image: np.ndarray) -> str:
-    """Perceptual hash: visually similar images get similar hashes, unlike
-    a cryptographic hash where a 1-pixel change scrambles the output.
-    imagehash resizes the image down, applies a DCT to capture the image's
-    low-frequency structure, and encodes that as a compact bit string —
-    so near-identical burst shots end up only a few bits apart.
-    """
+    """Unlike a cryptographic hash, visually similar images get similar
+    hashes — near-identical burst shots land only a few bits apart."""
     rgb_image = image[:, :, ::-1]  # OpenCV loads BGR; PIL expects RGB
     pil_image = Image.fromarray(rgb_image)
     return str(imagehash.phash(pil_image))

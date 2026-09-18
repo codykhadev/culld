@@ -10,8 +10,7 @@ UPLOAD_DIR.mkdir(exist_ok=True)
 
 app = FastAPI(title="Photo Culling Assistant API")
 
-# The frontend (Vite dev server) runs on a different port than the backend,
-# so the browser blocks requests between them unless we explicitly allow it.
+# Frontend runs on a different port (Vite dev server), so CORS must be explicit.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],
