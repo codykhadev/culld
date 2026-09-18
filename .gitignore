@@ -1,0 +1,20 @@
+# Python
+backend/venv/
+backend/__pycache__/
+backend/**/__pycache__/
+backend/*.db
+backend/uploads/
+backend/.pytest_cache/
+
+# Real personal photos used as local test fixtures — not for the repo
+# (burst_duplicates/ is synthetic, not real people, so it's fine to commit)
+backend/tests/fixtures/eyes_open/
+backend/tests/fixtures/eyes_closed/
+backend/tests/fixtures/no_face/
+
+# Node / frontend
+frontend/node_modules/
+frontend/dist/
+
+# OS
+.DS_Store
