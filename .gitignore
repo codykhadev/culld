@@ -11,6 +11,7 @@ backend/.pytest_cache/
 backend/tests/fixtures/eyes_open/
 backend/tests/fixtures/eyes_closed/
 backend/tests/fixtures/no_face/
+backend/tests/fixtures/group_photos/
 
 # Node / frontend
 frontend/node_modules/
@@ -18,3 +19,6 @@ frontend/dist/
 
 # OS
 .DS_Store
+
+# Local project context for Claude Code — not for the repo
+PROGRESS.md
