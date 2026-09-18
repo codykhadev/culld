@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
+from app.cleanup import wipe_all_sessions_on_shutdown
 from app.config import UPLOAD_DIR
 from app.db import init_db
 from app.routers import analyze, export, results, upload
@@ -29,6 +30,11 @@ app.include_router(export.router)
 @app.on_event("startup")
 def on_startup():
     init_db()
+
+
+@app.on_event("shutdown")
+def on_shutdown():
+    wipe_all_sessions_on_shutdown()
 
 
 @app.get("/health")
