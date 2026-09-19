@@ -14,31 +14,33 @@ export function PhotoCard({ photo, kept, onToggleKeep, onOpen }: Props) {
 
   return (
     <div
-      className={`group relative overflow-hidden rounded-lg border bg-white shadow-sm transition-all ${
-        kept ? "border-neutral-200" : "border-red-200 opacity-50"
+      className={`group relative overflow-hidden rounded-lg border bg-ink shadow-sm transition-all ${
+        kept ? "border-cream/10" : "border-red-500/30"
       }`}
     >
       {photo.is_recommended_keeper && (
-        <span className="absolute left-2 top-2 z-10 rounded-full bg-blue-600 px-2 py-0.5 text-xs font-semibold text-white shadow">
+        <span className="absolute left-2 top-2 z-10 rounded-full bg-gold px-2 py-0.5 text-xs font-semibold text-ink shadow">
           Recommended
         </span>
       )}
 
-      {failed ? (
-        <div className="flex aspect-square w-full items-center justify-center bg-neutral-100 p-2 text-center text-xs text-neutral-400">
-          Couldn't read this file
-        </div>
-      ) : (
-        <img
-          src={thumbnailUrl(photo.thumbnail_url)}
-          alt={photo.filename}
-          onClick={() => onOpen(photo.id)}
-          className="aspect-square w-full cursor-pointer object-cover"
-        />
-      )}
+      <div className={kept ? "" : "opacity-40"}>
+        {failed ? (
+          <div className="flex aspect-square w-full items-center justify-center bg-cream/5 p-2 text-center text-xs text-cream/30">
+            Couldn't read this file
+          </div>
+        ) : (
+          <img
+            src={thumbnailUrl(photo.thumbnail_url)}
+            alt={photo.filename}
+            onClick={() => onOpen(photo.id)}
+            className="aspect-square w-full cursor-pointer object-cover"
+          />
+        )}
 
-      <div className="flex flex-wrap items-center gap-1 p-2">
-        <PhotoStatusBadges photo={photo} />
+        <div className="flex flex-wrap items-center gap-1 p-2">
+          <PhotoStatusBadges photo={photo} />
+        </div>
       </div>
 
       <button
@@ -46,8 +48,8 @@ export function PhotoCard({ photo, kept, onToggleKeep, onOpen }: Props) {
         onClick={() => onToggleKeep(photo.id)}
         className={`w-full border-t py-1.5 text-xs font-medium transition-colors ${
           kept
-            ? "border-neutral-100 text-neutral-500 hover:bg-red-50 hover:text-red-600"
-            : "border-red-100 bg-red-50 text-red-600 hover:bg-red-100"
+            ? "border-cream/10 text-cream/50 hover:bg-red-500/10 hover:text-red-400"
+            : "border-red-500/20 bg-red-500/10 text-red-400 hover:bg-red-500/20"
         }`}
       >
         {kept ? "Remove" : "Removed — click to restore"}

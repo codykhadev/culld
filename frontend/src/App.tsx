@@ -76,21 +76,27 @@ function App() {
   };
 
   return (
-    <main className="mx-auto min-h-screen max-w-6xl px-4 py-8">
+    <main className="relative mx-auto min-h-screen max-w-6xl px-4 py-8">
       <header className="mb-6">
-        <h1 className="text-2xl font-semibold text-neutral-900">Photo Culling Assistant</h1>
-        <p className="text-sm text-neutral-500">
-          Upload a batch of photos — blurry shots, closed eyes, and near-duplicate bursts get flagged automatically.
+        <h1 className="font-display text-[64px] font-semibold text-cream">Culld</h1>
+        <p className="text-base text-cream/80">
+          Upload photos. The blurry shots, closed eyes, and near-duplicate photos will get flagged automatically.
         </p>
       </header>
 
-      <UploadDropzone onFilesSelected={handleFilesSelected} disabled={isUploading} />
+      {photos.length === 0 ? (
+        <div className="absolute inset-0 flex items-center justify-center px-4">
+          <UploadDropzone onFilesSelected={handleFilesSelected} disabled={isUploading} />
+        </div>
+      ) : (
+        <UploadDropzone onFilesSelected={handleFilesSelected} disabled={isUploading} />
+      )}
 
-      {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
+      {error && <p className="mt-3 text-sm text-red-400">{error}</p>}
 
       {photos.length > 0 && (
         <>
-          <div className="my-4 flex items-center justify-between text-sm text-neutral-500">
+          <div className="my-4 flex items-center justify-between text-sm text-cream/60">
             <span>
               {photos.length} photo{photos.length === 1 ? "" : "s"} · {keptCount} kept
             </span>
@@ -98,7 +104,7 @@ function App() {
               type="button"
               onClick={handleDownloadKept}
               disabled={isDownloading || keptCount === 0}
-              className="rounded-md bg-blue-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-neutral-300"
+              className="rounded-md bg-gold px-3 py-1.5 text-xs font-medium text-ink transition-colors duration-300 ease-in-out hover:bg-[#e6a600] disabled:cursor-not-allowed disabled:bg-neutral-700 disabled:text-neutral-400"
             >
               {isDownloading ? "Preparing…" : `Download ${keptCount} kept photo${keptCount === 1 ? "" : "s"}`}
             </button>
