@@ -27,18 +27,18 @@ export function UploadDropzone({ onFilesSelected, disabled }: Props) {
       }}
       onDragLeave={() => setIsDraggingOver(false)}
       onDrop={handleDrop}
-      className={`flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-10 text-center transition-colors ${
+      className={`relative mx-auto flex w-full max-w-xl cursor-pointer flex-col items-center justify-center overflow-hidden rounded-lg border-2 border-solid bg-ink p-10 text-center transition-colors ${
         disabled
-          ? "cursor-not-allowed border-neutral-200 bg-neutral-50 text-neutral-400"
+          ? "cursor-not-allowed border-cream/10 text-cream/30"
           : isDraggingOver
-            ? "border-blue-400 bg-blue-50 text-blue-600"
-            : "border-neutral-300 text-neutral-500 hover:border-neutral-400"
+            ? "border-gold text-gold"
+            : "diagonal-fill text-cream/60"
       }`}
     >
-      <p className="text-sm font-medium">
-        {disabled ? "Analyzing photos…" : "Drag photos here, or click to select"}
+      <p className="text-[24px] font-medium text-cream">
+        {disabled ? "Analyzing photos…" : "Drag photos here or click to select"}
       </p>
-      <p className="mt-1 text-xs text-neutral-400">JPG or PNG, any batch size</p>
+      <p className="mt-1 text-[18px] text-cream/80">JPG or PNG</p>
       <input
         ref={inputRef}
         type="file"
