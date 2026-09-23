@@ -104,7 +104,7 @@ function App() {
               type="button"
               onClick={handleDownloadKept}
               disabled={isDownloading || keptCount === 0}
-              className="rounded-md bg-gold px-3 py-1.5 text-xs font-medium text-ink transition-colors duration-300 ease-in-out hover:bg-[#e6a600] disabled:cursor-not-allowed disabled:bg-neutral-700 disabled:text-neutral-400"
+              className="cursor-pointer rounded-md bg-gold px-3 py-1.5 text-xs font-medium text-ink transition-colors duration-300 ease-in-out hover:bg-[#e6a600] disabled:cursor-not-allowed disabled:bg-neutral-700 disabled:text-neutral-400"
             >
               {isDownloading ? "Preparing…" : `Download ${keptCount} kept photo${keptCount === 1 ? "" : "s"}`}
             </button>

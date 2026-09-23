@@ -46,7 +46,7 @@ export function PhotoCard({ photo, kept, onToggleKeep, onOpen }: Props) {
       <button
         type="button"
         onClick={() => onToggleKeep(photo.id)}
-        className={`w-full border-t py-1.5 text-xs font-medium transition-colors ${
+        className={`w-full cursor-pointer border-t py-1.5 text-xs font-medium transition-colors ${
           kept
             ? "border-cream/10 text-cream/50 hover:bg-red-500/10 hover:text-red-400"
             : "border-red-500/20 bg-red-500/10 text-red-400 hover:bg-red-500/20"

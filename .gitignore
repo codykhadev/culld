@@ -21,4 +21,4 @@ frontend/dist/
 .DS_Store
 
 # Local project context for Claude Code — not for the repo
-PROGRESS.md
+CLAUDE.md
