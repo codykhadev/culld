@@ -14,7 +14,7 @@ export function PhotoCard({ photo, kept, onToggleKeep, onOpen }: Props) {
 
   return (
     <div
-      className={`group relative overflow-hidden rounded-lg border bg-ink shadow-sm transition-all ${
+      className={`group relative overflow-hidden rounded-lg border bg-ink shadow-sm transition-all duration-200 ease-out hover:z-10 hover:-translate-y-1 hover:scale-[1.03] hover:shadow-xl hover:shadow-black/60 motion-reduce:transition-none motion-reduce:hover:transform-none ${
         kept ? "border-cream/10" : "border-red-500/30"
       }`}
     >
